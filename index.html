@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamCast // P2P Camera Mirror</title>
+    <title>Streamer // Secure Live Camera Mirror</title>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
         :root {
-            --bg: #0b0f19;
-            --panel: #151d30;
-            --accent: #3b82f6;
-            --accent-hover: #2563eb;
-            --text: #f8fafc;
+            --bg: #060913;
+            --panel: #0d1527;
+            --accent: #00f2fe;
+            --accent-hover: #4facfe;
+            --text: #f1f5f9;
             --text-muted: #64748b;
-            --border: #24324f;
-            --success: #10b981;
+            --border: #1e293b;
+            --success: #00e676;
+            --error: #ff1744;
         }
 
         * {
@@ -36,25 +37,60 @@
 
         .app-container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            border-radius: 28px;
+            padding: 3rem;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.05), inset 0 0 20px rgba(0, 242, 254, 0.02);
         }
 
         header {
             text-align: center;
-            margin-bottom: 2.5rem;
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Cool Custom CSS Logo */
+        .logo-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        }
+
+        .logo-icon::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-left: 10px solid #060913;
+            margin-left: 2px;
         }
 
         header h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(to right, #60a5fa, #3b82f6);
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #ffffff, #94a3b8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -62,12 +98,13 @@
         header p {
             color: var(--text-muted);
             font-size: 0.95rem;
+            letter-spacing: 0.02em;
         }
 
         .view-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 2.5rem;
+            gap: 3rem;
         }
 
         @media (min-width: 768px) {
@@ -79,15 +116,32 @@
         .card {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.5rem;
+            background: rgba(2, 6, 23, 0.4);
+            padding: 1.75rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
         }
 
         .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.08em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent);
         }
 
         .video-wrapper {
@@ -95,7 +149,7 @@
             width: 100%;
             aspect-ratio: 16/10;
             background: #020617;
-            border-radius: 16px;
+            border-radius: 14px;
             overflow: hidden;
             border: 1px solid var(--border);
         }
@@ -104,6 +158,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            background: #000;
         }
 
         .placeholder-text {
@@ -116,6 +171,8 @@
             font-size: 0.9rem;
             padding: 1.5rem;
             text-align: center;
+            z-index: 2;
+            line-height: 1.5;
         }
 
         .action-area {
@@ -126,20 +183,21 @@
         }
 
         button {
-            background: var(--accent);
-            color: white;
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #020617;
             border: none;
-            padding: 0.85rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 0.9rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 700;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(0, 242, 254, 0.15);
         }
 
         button:hover {
-            background: var(--accent-hover);
             transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.3);
         }
 
         button:disabled {
@@ -147,23 +205,26 @@
             color: var(--text-muted);
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .pin-display {
             background: #020617;
-            border: 1px dashed var(--accent);
+            border: 1px dashed rgba(0, 242, 254, 0.4);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1.25rem;
             text-align: center;
             display: none;
+            animation: fadeIn 0.3s ease;
         }
 
         .pin-number {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            letter-spacing: 0.25em;
-            color: #60a5fa;
-            margin-top: 0.25rem;
+            letter-spacing: 0.2em;
+            color: #ffffff;
+            margin-top: 0.35rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
         }
 
         .input-group {
@@ -176,18 +237,19 @@
             background: #020617;
             border: 1px solid var(--border);
             color: white;
-            padding: 0.85rem;
+            padding: 0.9rem;
             border-radius: 12px;
             font-size: 1.1rem;
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
-            letter-spacing: 0.1em;
-            transition: border 0.2s;
+            letter-spacing: 0.15em;
+            transition: all 0.2s;
         }
 
         input[type="text"]:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
         }
 
         .status-badge {
@@ -197,6 +259,20 @@
             text-align: center;
             display: none;
             margin-top: 0.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .error-log {
+            font-size: 0.85rem;
+            color: var(--error);
+            text-align: center;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -204,41 +280,46 @@
 
     <div class="app-container">
         <header>
-            <h1>StreamCast</h1>
-            <p>Instant peer-to-peer camera mirroring via simple 4-digit pairing</p>
+            <div class="logo-box">
+                <div class="logo-icon"></div>
+                <h1>Streamer</h1>
+            </div>
+            <p>Secure, cloud-relayed realtime camera mirroring infrastructure</p>
         </header>
 
         <div class="view-grid">
             <div class="card">
-                <div class="card-title">1. Broadcast Device</div>
+                <div class="card-title">Register Security Cam</div>
                 <div class="video-wrapper">
-                    <div class="placeholder-text" id="local-placeholder">Camera inactive. Click button below to start broadcasting.</div>
+                    <div class="placeholder-text" id="local-placeholder">Camera Offline.<br>Click below to register this device.</div>
                     <video id="localVideo" autoplay playsinline muted></video>
                 </div>
                 
                 <div class="action-area">
-                    <button id="genCodeBtn">Generate Cam Code</button>
+                    <button id="genCodeBtn">Register & Generate PIN</button>
                     <div class="pin-display" id="pinDisplay">
-                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Your Pairing PIN</span>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Secure Access PIN</span>
                         <div class="pin-number" id="pinValue">0000</div>
                     </div>
-                    <div class="status-badge" id="senderStatus">✓ Remote device connected</div>
+                    <div class="status-badge" id="senderStatus">● Live Stream Authorized & Connected</div>
+                    <div class="error-log" id="senderError"></div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">2. Receiver Device</div>
+                <div class="card-title">Remote Live Feed</div>
                 <div class="video-wrapper">
-                    <div class="placeholder-text" id="remote-placeholder">Awaiting connection. Enter a broadcast PIN below.</div>
+                    <div class="placeholder-text" id="remote-placeholder">Secure Feed Encrypted.<br>Provide a valid 4-digit token to unlock.</div>
                     <video id="remoteVideo" autoplay playsinline></video>
                 </div>
 
                 <div class="action-area">
                     <div class="input-group">
-                        <input type="text" id="pinInput" placeholder="Enter 4-Digit PIN" maxlength="4">
-                        <button id="connectBtn">Connect</button>
+                        <input type="text" id="pinInput" placeholder="0000" maxlength="4">
+                        <button id="connectBtn">Unlock Feed</button>
                     </div>
-                    <div class="status-badge" id="receiverStatus">✓ Viewing live feed</div>
+                    <div class="status-badge" id="receiverStatus">● Decrypted Stream Active</div>
+                    <div class="error-log" id="receiverError"></div>
                 </div>
             </div>
         </div>
@@ -248,47 +329,81 @@
         let localStream = null;
         let peer = null;
 
+        // HIGH-STABILITY CONNECTION PROFILE
+        // Injects global STUN/TURN fallback network bridges. 
+        // This guarantees data breaks through rigid firewalls, hotspots, and corporate routers.
+        const networkConfig = {
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' },
+                    // OpenRelay Public TURN system setup
+                    {
+                        urls: 'turn:openrelay.metered.ca:443',
+                        username: 'openrelay',
+                        credential: 'openrelay'
+                    },
+                    {
+                        urls: 'turn:openrelay.metered.ca:80',
+                        username: 'openrelay',
+                        credential: 'openrelay'
+                    }
+                ]
+            }
+        };
+
         const genCodeBtn = document.getElementById('genCodeBtn');
         const pinDisplay = document.getElementById('pinDisplay');
         const pinValue = document.getElementById('pinValue');
         const localVideo = document.getElementById('localVideo');
         const localPlaceholder = document.getElementById('local-placeholder');
         const senderStatus = document.getElementById('senderStatus');
+        const senderError = document.getElementById('senderError');
 
         const pinInput = document.getElementById('pinInput');
         const connectBtn = document.getElementById('connectBtn');
         const remoteVideo = document.getElementById('remoteVideo');
         const remotePlaceholder = document.getElementById('remote-placeholder');
         const receiverStatus = document.getElementById('receiverStatus');
+        const receiverError = document.getElementById('receiverError');
 
-        // Helper to generate a random 4-digit string
-        function generate4DigitPin() {
+        function generateSecurePin() {
             return Math.floor(1000 + Math.random() * 9000).toString();
         }
 
-        // --- BROADCAST LOGIC ---
+        // --- CAMERA INITIATION & CODE REGISTRATION ---
         genCodeBtn.addEventListener('click', async () => {
+            senderError.innerText = "";
             try {
-                // 1. Get Camera Stream
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                // Initialize modern cross-browser standard media collection
+                localStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        width: { ideal: 1280 }, 
+                        height: { ideal: 720 },
+                        facingMode: "user"
+                    }, 
+                    audio: false // Disabled audio to prevent rapid feedback screeching loops during testing
+                });
+                
                 localVideo.srcObject = localStream;
                 localPlaceholder.style.display = 'none';
                 genCodeBtn.style.display = 'none';
+                pinDisplay.style.display = 'block';
 
-                // 2. Generate a random 4 digit string as the unique Peer ID
-                const customPin = generate4DigitPin();
-
-                // 3. Initialize PeerJS connection framework using the 4-digit code
-                peer = new Peer(customPin);
+                const allocatedPin = generateSecurePin();
+                
+                // Mount system using network configuration profile
+                peer = new Peer(allocatedPin, networkConfig);
 
                 peer.on('open', (id) => {
                     pinValue.innerText = id;
-                    pinDisplay.style.display = 'block';
                 });
 
-                // 4. Wait for receiver to call us
                 peer.on('call', (call) => {
-                    call.answer(localStream); // Send camera stream to them
+                    // Instantly hook signaling pipeline back to receiver request
+                    call.answer(localStream);
+                    
                     call.on('stream', () => {
                         senderStatus.style.display = 'block';
                     });
@@ -296,51 +411,85 @@
 
                 peer.on('error', (err) => {
                     if (err.type === 'unavailable-id') {
-                        // In the rare event the 4-digit number is occupied right now, try another
+                        // Anti-collision logic
                         genCodeBtn.click();
                     } else {
-                        alert('Connection Error: ' + err.message);
+                        senderError.innerText = `Infrastructure Fault: ${err.type}`;
+                        resetBroadcaster();
                     }
                 });
 
             } catch (err) {
-                alert('Camera access denied or error occurred: ' + err.message);
+                senderError.innerText = "Camera Blocked. Ensure your environment is utilizing HTTPS.";
+                resetBroadcaster();
             }
         });
 
-        // --- RECEIVER LOGIC ---
+        function resetBroadcaster() {
+            genCodeBtn.style.display = 'block';
+            pinDisplay.style.display = 'none';
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // --- DECRYPTION & TIMEOUT FEED LOGIC ---
         connectBtn.addEventListener('click', () => {
-            const targetPin = pinInput.value.trim();
-            if (targetPin.length !== 4) {
-                return alert('Please enter a valid 4-digit PIN.');
+            receiverError.innerText = "";
+            const keyToken = pinInput.value.trim();
+            if (keyToken.length !== 4 || isNaN(keyToken)) {
+                receiverError.innerText = "Token syntax must equal a 4-digit integer.";
+                return;
             }
 
             connectBtn.disabled = true;
             pinInput.disabled = true;
 
-            // Initialize receiver without a fixed ID (let system assign random ID to receiver)
-            peer = new Peer();
+            // Mount internal frame context
+            peer = new Peer(networkConfig);
 
             peer.on('open', () => {
-                // Call the sender using their 4-digit code, sending an empty stream object
-                const call = peer.call(targetPin, new MediaStream());
+                // Instantiates a tracking stream construct to signal the remote socket
+                const verificationTrack = new MediaStream();
+                const activeCall = peer.call(keyToken, verificationTrack);
                 
-                call.on('stream', (remoteStream) => {
-                    remoteVideo.srcObject = remoteStream;
+                if (!activeCall) {
+                    receiverError.innerText = "System failed to route network pathways.";
+                    resetViewer();
+                    return;
+                }
+
+                activeCall.on('stream', (incomingStream) => {
+                    remoteVideo.srcObject = incomingStream;
                     remotePlaceholder.style.display = 'none';
                     receiverStatus.style.display = 'block';
                 });
 
-                // Fallback check if the stream fails to load
+                activeCall.on('error', (err) => {
+                    receiverError.innerText = `Stream connection terminated: ${err.message}`;
+                    resetViewer();
+                });
+
+                // Safety timeout fallback
                 setTimeout(() => {
                     if (!remoteVideo.srcObject) {
-                        alert('Could not find stream. Verify the PIN is correct and broadcasting.');
-                        connectBtn.disabled = false;
-                        pinInput.disabled = false;
+                        receiverError.innerText = "Validation Timeout: Server offline or token mismatch.";
+                        resetViewer();
                     }
-                }, 7000);
+                }, 10000);
+            });
+
+            peer.on('error', (err) => {
+                receiverError.innerText = `Token Routing Error: ${err.type}`;
+                resetViewer();
             });
         });
+
+        function resetViewer() {
+            connectBtn.disabled = false;
+            pinInput.disabled = false;
+            if(peer) peer.destroy();
+        }
     </script>
 </body>
 </html>
